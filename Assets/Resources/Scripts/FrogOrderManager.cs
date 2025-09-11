@@ -46,4 +46,19 @@ public class FrogOrderManager : MonoBehaviour
             hits[i].transform.GetComponent<Selectable>().Select();
         }
     }
+
+    public static List<FrogWorker> AssignWorkers()
+    {
+        // 
+        List<FrogWorker> followersAsWorkers = new List<FrogWorker>();
+
+        for (int i = 0; i < followers.Count; i++)
+        {
+            FrogWorker worker = followers[i].GetWorker();
+            if (worker != null) followersAsWorkers.Add(worker);
+        }
+
+        followers.Clear();
+        return followersAsWorkers;
+    }
 }
