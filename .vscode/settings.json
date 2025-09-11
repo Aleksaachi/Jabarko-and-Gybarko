@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Jabarko and Gybarko.sln"
+    "dotnet.defaultSolution": "Jabarko-and-Gybarko.sln"
 }
