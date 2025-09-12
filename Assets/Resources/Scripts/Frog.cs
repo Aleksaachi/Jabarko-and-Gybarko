@@ -5,7 +5,7 @@ using UnityEngine;
 public class Frog : Selectable
 {
     public float walkSpeed;
-    bool walking = false;
+    public bool walking = false;
     float walkTime;
     float walkTimeToEnd;
     Vector3 startPoint;

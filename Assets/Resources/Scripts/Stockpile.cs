@@ -59,7 +59,8 @@ public class Stockpile : Building
         if (itemSum >= thresholds[2]) spriteRenderer.sprite = fullnessSprites[2];
         else if (itemSum >= thresholds[1]) spriteRenderer.sprite = fullnessSprites[1];
     }
-    public bool TryRemove(Item itemToRemove, int amountToRemove) {
+    public bool TryRemove(Item itemToRemove, int amountToRemove)
+    {
         // Used to check if you can remove a certain number of items from the stockpile, meant to be used before attempting to take items from this
         if (inventory[itemToRemove] < amountToRemove) return false;
         return true;
@@ -79,5 +80,16 @@ public class Stockpile : Building
 
         if (itemSum < thresholds[1]) spriteRenderer.sprite = fullnessSprites[0];
         else if (itemSum < thresholds[2]) spriteRenderer.sprite = fullnessSprites[1];
+    }
+
+    public override void Select()
+    {
+        List<FrogWorker> newWorkers = FrogOrderManager.AssignWorkers();
+    
+        foreach (FrogWorker worker in newWorkers)
+        {
+            AddWorker(worker);
+            worker.WalkToPoint(transform.position + new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f), 0));
+        }
     }
 }

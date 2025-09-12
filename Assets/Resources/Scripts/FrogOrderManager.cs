@@ -40,7 +40,7 @@ public class FrogOrderManager : MonoBehaviour
     void CheckForSelectables()
     {
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        RaycastHit2D[] hits = Physics2D.CircleCastAll(mousePosition, selectRadius, Vector2.zero, LayerMask.NameToLayer("Selectable"));
+        Collider2D[] hits = Physics2D.OverlapCircleAll(mousePosition, selectRadius, LayerMask.GetMask("Selectable"));
         for (int i = 0; i < hits.Length; i++)
         {
             hits[i].transform.GetComponent<Selectable>().Select();

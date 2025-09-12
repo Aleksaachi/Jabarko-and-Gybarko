@@ -12,8 +12,7 @@ public class FrogWorker : Frog
 
         if (workingIn != null)
         {
-            workingIn.workers.Remove(this);
-            workingIn = null;
+            workingIn.RemoveWorker(this);
         }
     }
     public override FrogWorker GetWorker()

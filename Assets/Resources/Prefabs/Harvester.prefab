@@ -98,6 +98,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba715e0e5aa8f6c4ca9848671e0cee5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  workers: []
+  plantSearchRange: 10
+  harvestTime: 5
+  harvests: 0
 --- !u!58 &7258130289223207149
 CircleCollider2D:
   m_ObjectHideFlags: 0
