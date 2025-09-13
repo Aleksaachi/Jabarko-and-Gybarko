@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 7911347456951242765}
   - component: {fileID: 1741418437497503079}
   - component: {fileID: 3724203082979653265}
+  - component: {fileID: 6874605004348857728}
   m_Layer: 6
   m_Name: FrogWorker
   m_TagString: Untagged
@@ -99,6 +100,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   walkSpeed: 1
+  walking: 0
+  workingIn: {fileID: 0}
 --- !u!58 &3724203082979653265
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -134,3 +137,23 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.64
+--- !u!114 &6874605004348857728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6841865657229212880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc14bdbb641a7fe4296b3733c852248d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationTime: 0.1
+  timer: 0
+  strenght: 0.1
+  half: 0
+  xScale: 0
+  yScale: 0
+  baseScale: {x: 0, y: 0, z: 0}
+  triggerOnClick: 1

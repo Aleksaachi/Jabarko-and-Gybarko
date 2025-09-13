@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5385018849540711668}
   - component: {fileID: 2533756468652426292}
   - component: {fileID: 7258130289223207149}
+  - component: {fileID: 4853111019758144158}
   m_Layer: 6
   m_Name: Harvester
   m_TagString: Untagged
@@ -102,6 +103,8 @@ MonoBehaviour:
   plantSearchRange: 10
   harvestTime: 5
   harvests: 0
+  plantsInRange: []
+  plantSelectedForHarvest: []
 --- !u!58 &7258130289223207149
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -137,3 +140,23 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 1.28
+--- !u!114 &4853111019758144158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2517897661563365862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc14bdbb641a7fe4296b3733c852248d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationTime: 0.1
+  timer: 0
+  strenght: 0.075
+  half: 0
+  xScale: 0
+  yScale: 0
+  baseScale: {x: 0, y: 0, z: 0}
+  triggerOnClick: 1

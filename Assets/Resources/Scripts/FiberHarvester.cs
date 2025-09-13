@@ -13,6 +13,11 @@ public class FiberHarvester : Building
     Dictionary<FrogWorker, GameObject> errandHarvest = new Dictionary<FrogWorker, GameObject>();
     public List<GameObject> plantsInRange = new List<GameObject>();
     public List<GameObject> plantSelectedForHarvest = new List<GameObject>();
+    SquashAndStretch squashAndStretch;
+    void Awake()
+    {
+        squashAndStretch = GetComponent<SquashAndStretch>();
+    }
     public override void Select()
     {
         List<FrogWorker> newWorkers = FrogOrderManager.AssignWorkers();
@@ -106,6 +111,7 @@ public class FiberHarvester : Building
                 {
                     errands[worker] = HarversterWorkErrand.None;
                     harvests++;
+                    squashAndStretch.StartAnimation();
                 }
             }
         }
