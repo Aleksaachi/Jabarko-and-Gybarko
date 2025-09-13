@@ -24,7 +24,10 @@ public class Stockpile : Building
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        squashAndStretch = GetComponent<SquashAndStretch>();
+        squashAndStretch = GetComponent<SquashAndStretch>();   
+    }
+    void Start()
+    {
         inventory = ItemManager.ReturnInventoryArray();
     }
     void Update()
@@ -138,6 +141,7 @@ public class Stockpile : Building
                         errands[worker].targetBuilding = building;
                         building.stockpileRequestsFulfilled++;
                         worker.WalkToPoint(building.transform.position);
+                        worker.idle = false;
                         break;
                     }
                 }
@@ -163,6 +167,7 @@ public class Stockpile : Building
                         AddItemUnconstrained(inventoryErrand.item, inventoryErrand.amount);
                         errands[worker] = new StockpileWorkErrand();
                         squashAndStretch.StartAnimation();
+                        worker.idle = true;
                     }
                 }
             }

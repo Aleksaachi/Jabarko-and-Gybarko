@@ -101,6 +101,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 1
   walking: 0
+  idlePoint: {x: 0, y: 0, z: 0}
+  wanderRange: 1.5
+  wanderTime: 8
+  idle: 1
   workingIn: {fileID: 0}
 --- !u!58 &3724203082979653265
 CircleCollider2D:

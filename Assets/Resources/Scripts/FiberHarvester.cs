@@ -101,6 +101,7 @@ public class FiberHarvester : Building
                     plantSelectedForHarvest.Add(errandHarvest[worker]);
                     plantsInRange.RemoveAt(0);
                     
+                    worker.idle = false;
                 }
             }
             // Move to plant
@@ -139,6 +140,7 @@ public class FiberHarvester : Building
                     errands[worker] = HarversterWorkErrand.None;
                     harvests++;
                     squashAndStretch.StartAnimation();
+                    worker.idle = true;
                 }
             }
         }

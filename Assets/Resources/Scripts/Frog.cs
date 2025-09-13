@@ -10,6 +10,16 @@ public class Frog : Selectable
     float walkTimeToEnd;
     Vector3 startPoint;
     Vector3 endPoint;
+    public Vector3 idlePoint;
+    public float wanderRange;
+    public float wanderTime;
+    float wanderTimer;
+    public bool idle = true;
+    void Awake()
+    {
+        idlePoint = transform.position;
+        wanderTimer = Random.Range(-0.5f*wanderTime, 0.5f*wanderTime);
+    }
     void Update()
     {
         if (walking)
@@ -22,6 +32,20 @@ public class Frog : Selectable
             if (walkTime >= walkTimeToEnd)
             {
                 walking = false;
+            }
+        }
+
+        if (idle)
+        {
+            wanderTimer += Time.deltaTime;
+            if (wanderTimer >= wanderTime)
+            {
+                if (!walking)
+                {
+                    Vector3 newPosition = new Vector3(idlePoint.x + Random.Range(-wanderRange, wanderRange), idlePoint.y + Random.Range(-wanderRange, wanderRange), 0);
+                    WalkToPoint(newPosition);
+                    wanderTimer = Random.Range(-0.5f * wanderTime, 0.5f * wanderTime);
+                }
             }
         }
     }

@@ -19,6 +19,7 @@ public class Building : Selectable
     {
         workers.Add(workerToAdd);
         workerToAdd.workingIn = this;
+        workerToAdd.idlePoint = transform.position;
     }
 
     public virtual void StockpileInteract(Stockpile stockpile, FrogWorker worker)
