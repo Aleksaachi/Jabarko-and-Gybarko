@@ -100,11 +100,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   workers: []
+  stockpileRequests: 0
+  stockpileRequestsFulfilled: 0
   plantSearchRange: 10
   harvestTime: 5
   harvests: 0
   plantsInRange: []
   plantSelectedForHarvest: []
+  DEBUGPLANT: {fileID: 9028413939418315246, guid: f44f0b1ed8821fe47a4df7b3030624ba, type: 3}
 --- !u!58 &7258130289223207149
 CircleCollider2D:
   m_ObjectHideFlags: 0

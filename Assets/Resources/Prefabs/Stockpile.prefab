@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8933441026480171369}
   - component: {fileID: 6002164551580393486}
   - component: {fileID: 3658501480963002133}
+  - component: {fileID: 6285412407228154660}
   m_Layer: 6
   m_Name: Stockpile
   m_TagString: Untagged
@@ -134,14 +135,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   workers: []
+  stockpileRequests: 0
+  stockpileRequestsFulfilled: 0
+  buildingSearchRange: 20
+  buildingsInRange: []
   capacity: 50
   items:
   - {fileID: 11400000, guid: 03879b6e115d486499563fa6d2561495, type: 2}
   - {fileID: 11400000, guid: 966b38b4fe28603428dfb86a59cc364a, type: 2}
-  amount: 0000000000000000
   fullnessSprites:
   - {fileID: 21300000, guid: e432c52c201d4a0459d014f07e38bde2, type: 3}
   - {fileID: 21300000, guid: 0ae0ed61bd0162c4684b84a77d288a3a, type: 3}
   - {fileID: 21300000, guid: 004f11be2971d844bb028e6e4ab9a9b1, type: 3}
   thresholds: 000000000100000023000000
-  DEBUG: 0
+  DEBUG1: 0
+--- !u!114 &6285412407228154660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3805604802644081714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc14bdbb641a7fe4296b3733c852248d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animationTime: 0.1
+  timer: 0
+  strenght: 0.075
+  half: 0
+  xScale: 0
+  yScale: 0
+  baseScale: {x: 0, y: 0, z: 0}
+  triggerOnClick: 1

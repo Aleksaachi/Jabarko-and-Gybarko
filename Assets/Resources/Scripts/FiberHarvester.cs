@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class FiberHarvester : Building
 {
+    [Header("Harvester")]
     public float plantSearchRange;
     public float harvestTime;
     public int harvests = 0;
@@ -14,6 +15,7 @@ public class FiberHarvester : Building
     public List<GameObject> plantsInRange = new List<GameObject>();
     public List<GameObject> plantSelectedForHarvest = new List<GameObject>();
     SquashAndStretch squashAndStretch;
+    public GameObject DEBUGPLANT;
     void Awake()
     {
         squashAndStretch = GetComponent<SquashAndStretch>();
@@ -38,13 +40,35 @@ public class FiberHarvester : Building
     {
         base.RemoveWorker(workerToRemove);
         errands.Remove(workerToRemove);
-        plantSelectedForHarvest.Remove(errandHarvest[workerToRemove]);
+        if (errandHarvest.ContainsKey(workerToRemove)) plantSelectedForHarvest.Remove(errandHarvest[workerToRemove]);
         errandHarvest.Remove(workerToRemove);
         errandTime.Remove(workerToRemove);
         
     }
-    void Update() {
-        FrogControl(); 
+
+    public override void StockpileInteract(Stockpile stockpile, FrogWorker worker)
+    {
+        // Replace the work errand in the stockpile with a inventory errand
+        base.StockpileInteract(stockpile, worker);
+
+        Stockpile.StockpileWorkErrand errand = stockpile.errands[worker];
+        Stockpile.StockPileInventoryWorkErrand inventoryErrand = new Stockpile.StockPileInventoryWorkErrand(errand, ItemManager.GetItem("Fiber"), 1);
+
+        inventoryErrand.errandType = Stockpile.StockpileWorkErrandType.Bring;
+        inventoryErrand.targetBuilding = stockpile;
+
+        stockpile.errands[worker] = inventoryErrand;
+
+        harvests--;
+        stockpileRequests--;
+        stockpileRequestsFulfilled--;
+
+        squashAndStretch.StartAnimation();
+    }
+    void Update()
+    {
+        FrogControl();
+        stockpileRequests = harvests;
     }
     void FrogControl()
     {
@@ -95,8 +119,11 @@ public class FiberHarvester : Building
 
                 if (errandTime[worker] >= harvestTime)
                 {
+                    Instantiate(DEBUGPLANT, worker.transform.position, Quaternion.identity);
                     plantsInRange.Remove(errandHarvest[worker]);
+                    plantSelectedForHarvest.Remove(errandHarvest[worker]);
                     Destroy(errandHarvest[worker]);
+
                     errandHarvest.Remove(worker);
                     errandTime.Remove(worker);
                     errands[worker] = HarversterWorkErrand.Collect;
