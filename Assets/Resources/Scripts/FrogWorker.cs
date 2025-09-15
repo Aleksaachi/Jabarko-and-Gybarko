@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class FrogWorker : Frog
 {
+    [Header("Inventory settings")]
+    public Inventory inv;
     public Building workingIn;
-
+    void Awake()
+    {
+        inv = GetComponent<Inventory>();
+    }
     public override void Select()
     {
         base.Select();
@@ -19,4 +24,5 @@ public class FrogWorker : Frog
     {
         return this;
     }
+                
 }

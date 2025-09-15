@@ -8,14 +8,10 @@ public class FiberHarvester : Building
     [Header("Harvester")]
     public float plantSearchRange;
     public float harvestTime;
-    public int harvests = 0;
-    Dictionary<FrogWorker, HarversterWorkErrand> errands = new Dictionary<FrogWorker, HarversterWorkErrand>();
-    Dictionary<FrogWorker, float> errandTime = new Dictionary<FrogWorker, float>();
-    Dictionary<FrogWorker, GameObject> errandHarvest = new Dictionary<FrogWorker, GameObject>();
-    public List<GameObject> plantsInRange = new List<GameObject>();
-    public List<GameObject> plantSelectedForHarvest = new List<GameObject>();
+    public int fiber = 0;
+    Dictionary<FrogWorker, HarvestErrand> errands = new Dictionary<FrogWorker, HarvestErrand>();
+    public List<Plant> plantsInRange = new List<Plant>();
     SquashAndStretch squashAndStretch;
-    public GameObject DEBUGPLANT;
     void Awake()
     {
         squashAndStretch = GetComponent<SquashAndStretch>();
@@ -33,17 +29,14 @@ public class FiberHarvester : Building
     public override void AddWorker(FrogWorker workerToAdd)
     {
         base.AddWorker(workerToAdd);
-        errands.Add(workerToAdd, HarversterWorkErrand.None);
+        errands.Add(workerToAdd, new HarvestErrand());
     }
 
     public override void RemoveWorker(FrogWorker workerToRemove)
     {
         base.RemoveWorker(workerToRemove);
+        if (errands[workerToRemove].plant != null) errands[workerToRemove].plant.targetedForHarvest = false;
         errands.Remove(workerToRemove);
-        if (errandHarvest.ContainsKey(workerToRemove)) plantSelectedForHarvest.Remove(errandHarvest[workerToRemove]);
-        errandHarvest.Remove(workerToRemove);
-        errandTime.Remove(workerToRemove);
-        
     }
 
     public override void StockpileInteract(Stockpile stockpile, FrogWorker worker)
@@ -51,94 +44,117 @@ public class FiberHarvester : Building
         // Replace the work errand in the stockpile with a inventory errand
         base.StockpileInteract(stockpile, worker);
 
-        Stockpile.StockpileWorkErrand errand = stockpile.errands[worker];
-        Stockpile.StockPileInventoryWorkErrand inventoryErrand = new Stockpile.StockPileInventoryWorkErrand(errand, ItemManager.GetItem("Fiber"), 1);
+        // Change the errand order in the stockpile
+        stockpile.errands[worker].errandType = Stockpile.StockpileWorkErrandType.Bring;
+        stockpile.errands[worker].targetBuilding = stockpile;
 
-        inventoryErrand.errandType = Stockpile.StockpileWorkErrandType.Bring;
-        inventoryErrand.targetBuilding = stockpile;
-
-        stockpile.errands[worker] = inventoryErrand;
-
-        harvests--;
+        // Calculate the amount that will be taken
+        int amountToGrab;
+        if (fiber >= FrogOrderManager.instance.workerFrogCarryCapacity) amountToGrab = FrogOrderManager.instance.workerFrogCarryCapacity;
+        else amountToGrab = fiber%FrogOrderManager.instance.workerFrogCarryCapacity;
+        
+        // Fix request amounts
+        fiber -= amountToGrab;
         stockpileRequests--;
         stockpileRequestsFulfilled--;
+
+        // Give items to the worker
+        worker.inv.AddItem(ItemManager.GetItem("Fiber"), amountToGrab);
 
         squashAndStretch.StartAnimation();
     }
     void Update()
     {
+        PlantSearch();
         FrogControl();
-        stockpileRequests = harvests;
+        stockpileRequests = Mathf.FloorToInt((float)fiber/FrogOrderManager.instance.workerFrogCarryCapacity);
     }
-    void FrogControl()
+    void PlantSearch()
     {
-        if (plantsInRange.Count == 0)
+        int workablePlants = 0;
+        foreach (Plant plant in plantsInRange)
+        {
+            if (!plant.targetedForHarvest && plant.harvestable)
+            {
+                workablePlants++;
+            }
+        }
+
+        if (workablePlants == 0)
         {
             // Find all plants in range
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, plantSearchRange, LayerMask.GetMask("Plants"));
             for (int i = 0; i < hits.Length; i++)
             {
+                Plant plant = hits[i].transform.GetComponent<Plant>();
                 // Exclude plants that are being harvested
-                if (!plantSelectedForHarvest.Contains(hits[i].gameObject))
+                if (!plant.targetedForHarvest && plant.harvestable)
                 {
-                    plantsInRange.Add(hits[i].transform.gameObject);
+                    plantsInRange.Add(plant);
                 }
             }
         }
-
+    }
+    void FrogControl()
+    {
         foreach (FrogWorker worker in workers)
         {
+            HarvestErrand errand = errands[worker];
             // Find a plant for each worker
-            if (errands[worker] == HarversterWorkErrand.None)
+            if (errand.errandType == HarversterErrandType.None)
             {
-                if (plantsInRange.Count != 0)
+                for (int i = 0; i < plantsInRange.Count; i++)
                 {
-                    errands[worker] = HarversterWorkErrand.Move;
+                    Plant plant = plantsInRange[i];
+                    if (plant.targetedForHarvest) continue;
 
-                    errandTime.Add(worker, 0);
-                    errandHarvest.Add(worker, plantsInRange[0]);
-                    worker.WalkToPoint(errandHarvest[worker].transform.position);
-                    plantSelectedForHarvest.Add(errandHarvest[worker]);
-                    plantsInRange.RemoveAt(0);
-                    
+                    errands[worker].errandType = HarversterErrandType.Move;
+                    errands[worker].time = 0;
+                    errands[worker].plant = plant;
+                    worker.WalkToPoint(plant.transform.position);
+
+                    plant.targetedForHarvest = true;
+                    plantsInRange.RemoveAt(i);
+
                     worker.idle = false;
+                    break;
                 }
             }
             // Move to plant
-            else if (errands[worker] == HarversterWorkErrand.Move)
+            else if (errand.errandType == HarversterErrandType.Move)
             {
                 if (!worker.walking)
                 {
-                    errands[worker] = HarversterWorkErrand.Harvest;
+                    errands[worker].errandType = HarversterErrandType.Harvest;
                 }
-                
+
             }
             // Count down until the plant should be harvested
-            else if (errands[worker] == HarversterWorkErrand.Harvest)
+            else if (errand.errandType == HarversterErrandType.Harvest)
             {
-                errandTime[worker] += Time.deltaTime;
+                errand.time += Time.deltaTime;
 
-                if (errandTime[worker] >= harvestTime)
+                if (errand.time >= harvestTime)
                 {
-                    Instantiate(DEBUGPLANT, worker.transform.position, Quaternion.identity);
-                    plantsInRange.Remove(errandHarvest[worker]);
-                    plantSelectedForHarvest.Remove(errandHarvest[worker]);
-                    Destroy(errandHarvest[worker]);
+                    plantsInRange.Remove(errand.plant);
+                    errand.plant.Harvest();
 
-                    errandHarvest.Remove(worker);
-                    errandTime.Remove(worker);
-                    errands[worker] = HarversterWorkErrand.Collect;
+                    errand.yield = errand.plant.yield;
+                    errand.plant = null;
+                    errand.time = 0;
+                    errands[worker].errandType = HarversterErrandType.Collect;
 
                     worker.WalkToPoint(transform.position);
                 }
             }
             // Bring the frog back
-            else if (errands[worker] == HarversterWorkErrand.Collect)
+            else if (errand.errandType == HarversterErrandType.Collect)
             {
                 if (!worker.walking)
                 {
-                    errands[worker] = HarversterWorkErrand.None;
-                    harvests++;
+                    errands[worker].errandType = HarversterErrandType.None;
+                    fiber += errand.yield;
+
                     squashAndStretch.StartAnimation();
                     worker.idle = true;
                 }
@@ -146,11 +162,26 @@ public class FiberHarvester : Building
         }
     }
 
-    enum HarversterWorkErrand
+    enum HarversterErrandType
     {
         None,
         Move,
         Harvest,
         Collect
+    }
+
+    class HarvestErrand
+    {
+        public HarversterErrandType errandType;
+        public float time;
+        public Plant plant;
+        public int yield;
+
+        public HarvestErrand()
+        {
+            errandType = HarversterErrandType.None;
+            time = 0;
+            plant = null;
+        }
     }
 }

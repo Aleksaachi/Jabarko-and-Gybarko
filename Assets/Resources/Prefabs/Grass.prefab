@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 3119368436923931119}
   - component: {fileID: 5905142670448094689}
   - component: {fileID: -7938603374082320134}
+  - component: {fileID: -3224745971773617325}
   m_Layer: 7
-  m_Name: Plant
+  m_Name: Grass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -120,3 +121,21 @@ CircleCollider2D:
   m_Offset: {x: 0, y: -0.4}
   serializedVersion: 2
   m_Radius: 0.16
+--- !u!114 &-3224745971773617325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9028413939418315246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7cc9c95feca033341ad3c9f4500b0307, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  harvestable: 1
+  yield: 2
+  growTime: 10
+  targetedForHarvest: 0
+  grown: {fileID: 21300000, guid: 9fd2b617231a7e046b969abea743e91c, type: 3}
+  stem: {fileID: 21300000, guid: fbc3155dede4d2d46a88bdf68d202626, type: 3}

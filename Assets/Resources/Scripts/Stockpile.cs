@@ -9,79 +9,29 @@ public class Stockpile : Building
     public float buildingSearchRange;
     public List<Building> buildingsInRange;
     public Dictionary<FrogWorker, StockpileWorkErrand> errands = new Dictionary<FrogWorker, StockpileWorkErrand>();
-    [Header("Inventory settings")]
-    public int capacity;
-
-    [SerializeField]
-    public Item[] items;
-    Dictionary<Item, int> inventory;
-    int itemSum;
     public Sprite[] fullnessSprites;
     public int[] thresholds;
+    public Inventory inv;
     SpriteRenderer spriteRenderer;
     SquashAndStretch squashAndStretch;
-    public bool DEBUG1;
     void Awake()
     {
+        inv = GetComponent<Inventory>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         squashAndStretch = GetComponent<SquashAndStretch>();   
-    }
-    void Start()
-    {
-        inventory = ItemManager.ReturnInventoryArray();
     }
     void Update()
     {
         FrogControl();
-        if (DEBUG1)
-        {
-            Debug.Log(itemSum);
-            DEBUG1 = false;
-        }
-    }
-    public bool TryAdd(int amountToAdd)
-    {
-        // Used to check if you can add new items to the stockpile, meant to be used before attempting to start an action that moves items into this
-        if (itemSum + amountToAdd > capacity) return false;
-        return true;
-    }
-    public void AddItem(Item itemToAdd, int amountToAdd)
-    {
-        // This function tries to add an item
-        if (!TryAdd(amountToAdd)) return;
-
-        AddItemUnconstrained(itemToAdd, amountToAdd);
-    }
-    public void AddItemUnconstrained(Item itemToAdd, int amountToAdd)
-    {
-        // This function is supposed to be used with TryAdd().
-        inventory[itemToAdd] += amountToAdd;
-        itemSum += amountToAdd;
-
-        if (itemSum >= thresholds[2]) spriteRenderer.sprite = fullnessSprites[2];
-        else if (itemSum >= thresholds[1]) spriteRenderer.sprite = fullnessSprites[1];
-    }
-    public bool TryRemove(Item itemToRemove, int amountToRemove)
-    {
-        // Used to check if you can remove a certain number of items from the stockpile, meant to be used before attempting to take items from this
-        if (inventory[itemToRemove] < amountToRemove) return false;
-        return true;
     }
     public void RemoveItem(Item itemToRemove, int amountToRemove)
     {
         // This function tries to remove an item
-        if (!TryRemove(itemToRemove, amountToRemove)) return;
+        if (!inv.TryRemove(itemToRemove, amountToRemove)) return;
+        inv.RemoveItemUnconstrained(itemToRemove, amountToRemove);
 
-        RemoveItemUnconstrained(itemToRemove, amountToRemove);
-    }
-    public void RemoveItemUnconstrained(Item itemToRemove, int amountToRemove)
-    {
-        // This function is supposed to be used with TryRemove().
-        inventory[itemToRemove] -= amountToRemove;
-        itemSum -= amountToRemove;
-
-        if (itemSum < thresholds[1]) spriteRenderer.sprite = fullnessSprites[0];
-        else if (itemSum < thresholds[2]) spriteRenderer.sprite = fullnessSprites[1];
+        if (inv.itemSum < thresholds[1]) spriteRenderer.sprite = fullnessSprites[0];
+        else if (inv.itemSum < thresholds[2]) spriteRenderer.sprite = fullnessSprites[1];
     }
     public override void AddWorker(FrogWorker workerToAdd)
     {
@@ -133,16 +83,28 @@ public class Stockpile : Building
             // Find an errand for this frog worker
             if (errand.errandType == StockpileWorkErrandType.None)
             {
-                foreach (Building building in buildingsInRange)
-                {   
-                    if (building.stockpileRequests > building.stockpileRequestsFulfilled)
+                // If the frog has items return them
+                if (worker.inv.itemSum != 0)
+                {
+                    errands[worker].errandType = StockpileWorkErrandType.Bring;
+                    errands[worker].targetBuilding = this;
+
+                    worker.WalkToPoint(transform.position);
+                }
+                // If not find a building that has requests
+                else
+                {
+                    foreach (Building building in buildingsInRange)
                     {
-                        errands[worker].errandType = StockpileWorkErrandType.WalkToOrder;
-                        errands[worker].targetBuilding = building;
-                        building.stockpileRequestsFulfilled++;
-                        worker.WalkToPoint(building.transform.position);
-                        worker.idle = false;
-                        break;
+                        if (building.stockpileRequests > building.stockpileRequestsFulfilled)
+                        {
+                            errands[worker].errandType = StockpileWorkErrandType.WalkToOrder;
+                            errands[worker].targetBuilding = building;
+                            building.stockpileRequestsFulfilled++;
+                            worker.WalkToPoint(building.transform.position);
+                            worker.idle = false;
+                            break;
+                        }
                     }
                 }
             }
@@ -160,14 +122,16 @@ public class Stockpile : Building
             {
                 if (!worker.walking)
                 {
-                    StockPileInventoryWorkErrand inventoryErrand = errand.GetInventoryErrand();
-                    if (TryAdd(inventoryErrand.amount))
+                    if (inv.TryCombine(worker.inv))
                     {
                         // Add items and reset worker
-                        AddItemUnconstrained(inventoryErrand.item, inventoryErrand.amount);
+                        inv.Combine(worker.inv);
                         errands[worker] = new StockpileWorkErrand();
                         squashAndStretch.StartAnimation();
                         worker.idle = true;
+
+                        if (inv.itemSum >= thresholds[2]) spriteRenderer.sprite = fullnessSprites[2];
+                        else if (inv.itemSum >= thresholds[1]) spriteRenderer.sprite = fullnessSprites[1];
                     }
                 }
             }
@@ -183,29 +147,6 @@ public class Stockpile : Building
         {
             errandType = StockpileWorkErrandType.None;
             targetBuilding = null;
-        }
-        public virtual StockPileInventoryWorkErrand GetInventoryErrand()
-        {
-            return null;
-        }
-    }
-    public class StockPileInventoryWorkErrand : StockpileWorkErrand
-    {
-        public Item item;
-        public int amount;
-
-        public StockPileInventoryWorkErrand(StockpileWorkErrand errandToCopy, Item itemToDeliver, int amountToDeliver)
-        {
-            errandType = errandToCopy.errandType;
-            targetBuilding = errandToCopy.targetBuilding;
-
-            item = itemToDeliver;
-            amount = amountToDeliver;
-        }
-
-        public override StockPileInventoryWorkErrand GetInventoryErrand()
-        {
-            return this;
         }
     }
     public enum StockpileWorkErrandType

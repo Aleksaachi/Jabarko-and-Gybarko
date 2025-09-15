@@ -7,6 +7,7 @@ public class FrogOrderManager : MonoBehaviour
     public static FrogOrderManager instance;
     public static List<Frog> followers = new List<Frog>();
     public float selectRadius;
+    public int workerFrogCarryCapacity;
     void Awake()
     {
         instance = this;
