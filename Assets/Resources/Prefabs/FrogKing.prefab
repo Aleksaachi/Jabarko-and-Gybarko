@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4091361596825338279}
   - component: {fileID: 6469636715335063588}
   - component: {fileID: 704490997998440640}
+  - component: {fileID: 3408344089754902606}
   m_Layer: 0
   m_Name: FrogKing
   m_TagString: Untagged
@@ -112,3 +113,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48c0c842881c92a4bbfde0997f6dce8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3408344089754902606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5520899233528784762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c6582bfb0d680848a71321b7632b788, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movespeed: 3

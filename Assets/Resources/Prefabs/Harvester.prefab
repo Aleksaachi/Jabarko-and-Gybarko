@@ -86,7 +86,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!114 &2533756468652426292
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104,10 +104,8 @@ MonoBehaviour:
   stockpileRequestsFulfilled: 0
   plantSearchRange: 10
   harvestTime: 5
-  harvests: 0
+  fiber: 0
   plantsInRange: []
-  plantSelectedForHarvest: []
-  DEBUGPLANT: {fileID: 9028413939418315246, guid: f44f0b1ed8821fe47a4df7b3030624ba, type: 3}
 --- !u!58 &7258130289223207149
 CircleCollider2D:
   m_ObjectHideFlags: 0
