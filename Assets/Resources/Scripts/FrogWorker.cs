@@ -7,8 +7,9 @@ public class FrogWorker : Frog
     [Header("Inventory settings")]
     public Inventory inv;
     public Building workingIn;
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         inv = GetComponent<Inventory>();
     }
     public override void Select()

@@ -43,6 +43,8 @@ public class FrogOrderManager : MonoBehaviour
 
     void CheckForSelectables()
     {
+        if (RaycastChecker.Check()) return;
+        
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         Collider2D[] hits = Physics2D.OverlapCircleAll(mousePosition, selectRadius, LayerMask.GetMask("Selectable"));
         for (int i = 0; i < hits.Length; i++)

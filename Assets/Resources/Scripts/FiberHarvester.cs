@@ -61,7 +61,7 @@ public class FiberHarvester : Building
         // Give items to the worker
         worker.inv.AddItem(ItemManager.GetItem("Fiber"), amountToGrab);
 
-        squashAndStretch.StartAnimation();
+        squashAndStretch.Play();
     }
     void Update()
     {
@@ -155,7 +155,7 @@ public class FiberHarvester : Building
                     errands[worker].errandType = HarversterErrandType.None;
                     fiber += errand.yield;
 
-                    squashAndStretch.StartAnimation();
+                    squashAndStretch.Play();
                     worker.idle = true;
                 }
             }

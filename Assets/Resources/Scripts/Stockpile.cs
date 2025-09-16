@@ -127,7 +127,7 @@ public class Stockpile : Building
                         // Add items and reset worker
                         inv.Combine(worker.inv);
                         errands[worker] = new StockpileWorkErrand();
-                        squashAndStretch.StartAnimation();
+                        squashAndStretch.Play();
                         worker.idle = true;
 
                         if (inv.itemSum >= thresholds[2]) spriteRenderer.sprite = fullnessSprites[2];

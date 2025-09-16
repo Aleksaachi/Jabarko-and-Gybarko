@@ -47,7 +47,7 @@ public class SquashAndStretch : MonoBehaviour
 
         transform.localScale = new Vector3(xScale, yScale, baseScale.z);
     }
-    public void StartAnimation(){
+    public void Play(){
         animationInProgress = true;
         transform.localScale = baseScale;
         xScale = baseScale.x;
@@ -58,7 +58,7 @@ public class SquashAndStretch : MonoBehaviour
 
     public void OnMouseDown()
     {
-        if (triggerOnClick) StartAnimation();
+        if (triggerOnClick && !RaycastChecker.Check()) Play();
     }
 
 }

@@ -15,10 +15,12 @@ public class Frog : Selectable
     public float wanderTime;
     float wanderTimer;
     public bool idle = true;
-    void Awake()
+    SquashAndStretch squashAndStretch;
+    protected virtual void Awake()
     {
         idlePoint = transform.position;
-        wanderTimer = Random.Range(-0.5f*wanderTime, 0.5f*wanderTime);
+        wanderTimer = Random.Range(-0.5f * wanderTime, 0.5f * wanderTime);
+        squashAndStretch = GetComponent<SquashAndStretch>();
     }
     void Update()
     {
@@ -67,6 +69,7 @@ public class Frog : Selectable
 
     public override void Select()
     {
+        squashAndStretch.Play();
         if (walking) walking = false;
         FrogOrderManager.AddFollower(this);
     }
