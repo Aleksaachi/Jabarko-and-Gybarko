@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39ad0fa0949e13949b517193f1dd5bbe, type: 3}
+  m_Name: Stockpile
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 3805604802644081714, guid: 6df8f60a49afbb643b6069fb3e25d151, type: 3}
+  itemCost:
+  - {fileID: 11400000, guid: 03879b6e115d486499563fa6d2561495, type: 2}
+  itemAmounts: 0a000000
+  icon: {fileID: 21300000, guid: 004f11be2971d844bb028e6e4ab9a9b1, type: 3}

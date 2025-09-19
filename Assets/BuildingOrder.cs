@@ -1,14 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class BuildingOrder : Building
 {
-    Dictionary<Item, int> buildCost;
+    public BuildOrderTemplate buildOrderTemplate;
     Inventory inv;
-    public List<Item> items = new List<Item>();
-    public List<int> amounts = new List<int>();
-    public GameObject building;
     SquashAndStretch squashAndStretch;
     void Awake()
     {
@@ -17,30 +15,27 @@ public class BuildingOrder : Building
     }
     void Start()
     {
-        buildCost = ItemManager.ReturnInventoryArray();
-
-        for (int i = 0; i < items.Count; i++)
+        // Create all necessary stockpile requests
+        for (int i = 0; i < buildOrderTemplate.itemCost.Count; i++)
         {
-            int amount = amounts[i];
-            buildCost[items[i]] = amount;
-            if (buildCost[items[i]] != 0)
+            int amount = buildOrderTemplate.itemAmounts[i];
+
+            while (amount != 0)
             {
-                while (amount != 0)
-                {
-                    int requestAmount = FrogOrderManager.instance.workerFrogCarryCapacity;
-                    if (amount < FrogOrderManager.instance.workerFrogCarryCapacity) requestAmount = amount % FrogOrderManager.instance.workerFrogCarryCapacity;
+                int requestAmount = FrogOrderManager.instance.workerFrogCarryCapacity;
+                if (amount < FrogOrderManager.instance.workerFrogCarryCapacity) requestAmount = amount % FrogOrderManager.instance.workerFrogCarryCapacity;
 
-                    StockpileRequest request = new StockpileRequest(items[i], requestAmount);
-                    requests.Add(request);
+                StockpileRequest request = new StockpileRequest(buildOrderTemplate.itemCost[i], requestAmount);
+                requests.Add(request);
 
-                    amount -= requestAmount;
-                }
+                amount -= requestAmount;
             }
         }
     }
 
     public override void StockpileInteract(Stockpile stockpile, FrogWorker worker)
     {
+        // Take items from frog worker
         base.StockpileInteract(stockpile, worker);
         inv.Combine(worker.inv);
 
@@ -55,10 +50,12 @@ public class BuildingOrder : Building
 
     void Update()
     {
+        // Check if all request are completed
         if (requests.Count == 0)
         {
-            Instantiate(building, transform.position, Quaternion.identity);
+            Instantiate(buildOrderTemplate.prefab, transform.position, Quaternion.identity);
             Destroy(gameObject);
+            EventManager.newBuildingPlaced?.Invoke();
         }
     }
 }

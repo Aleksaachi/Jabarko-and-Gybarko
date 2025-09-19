@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Stockpile : Building
@@ -19,21 +20,24 @@ public class Stockpile : Building
     {
         inv = GetComponent<Inventory>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        squashAndStretch = GetComponent<SquashAndStretch>();   
+        squashAndStretch = GetComponent<SquashAndStretch>();
+    }
+    void Start()
+    {
+        FindBuildings();
+        
+    }
+    void OnEnable()
+    {
+        EventManager.newBuildingPlaced += FindBuildings;
+    }
+    void OnDisable()
+    {   
+        EventManager.newBuildingPlaced -= FindBuildings;
     }
     void Update()
     {
         FrogControl();
-
-        if (Debug1)
-        {
-            Debug1 = !Debug1;
-            Debug.Log(gameObject.name + ": ");
-            foreach (KeyValuePair<Item, int> pair in inv.inventory)
-            {
-                Debug.Log(pair.Key + " - " + pair.Value);
-            }
-        }
     }
     public void RemoveItem(Item itemToRemove, int amountToRemove)
     {
@@ -72,23 +76,23 @@ public class Stockpile : Building
             worker.WalkToPoint(transform.position + new Vector3(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f), 0));
         }
     }
-
-    void FrogControl()
+    void FindBuildings()
     {
-        if (buildingsInRange.Count == 0)
+        // Find all buildings in range
+        buildingsInRange.Clear();
+        
+        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, buildingSearchRange, LayerMask.GetMask("Selectable"));
+        for (int i = 0; i < hits.Length; i++)
         {
-            // Find all plants in range
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, buildingSearchRange, LayerMask.GetMask("Selectable"));
-            for (int i = 0; i < hits.Length; i++)
+            Building building = hits[i].GetComponent<Building>();
+            if (building != null)
             {
-                Building building = hits[i].GetComponent<Building>();
-                if (building != null)
-                {
-                    buildingsInRange.Add(building);
-                }
+                buildingsInRange.Add(building);
             }
         }
-
+    }
+    void FrogControl()
+    {
         foreach (FrogWorker worker in workers)
         {
             StockpileWorkErrand errand = errands[worker];
@@ -194,8 +198,8 @@ public class Stockpile : Building
                     }
                     else
                     {
-                        int index = errands[worker].targetBuilding.requests.IndexOf(errands[worker].request);
-                        errands[worker].targetBuilding.requests[index].fulfilled = false;
+                        int index = errands[worker].deliverTarget.requests.IndexOf(errands[worker].request);
+                        errands[worker].deliverTarget.requests[index].fulfilled = false;
                         ResetErrand(worker);
                     }
                 }
