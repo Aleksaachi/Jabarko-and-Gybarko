@@ -14,6 +14,7 @@ public class Stockpile : Building
     public Inventory inv;
     SpriteRenderer spriteRenderer;
     SquashAndStretch squashAndStretch;
+    public bool Debug1;
     void Awake()
     {
         inv = GetComponent<Inventory>();
@@ -23,6 +24,16 @@ public class Stockpile : Building
     void Update()
     {
         FrogControl();
+
+        if (Debug1)
+        {
+            Debug1 = !Debug1;
+            Debug.Log(gameObject.name + ": ");
+            foreach (KeyValuePair<Item, int> pair in inv.inventory)
+            {
+                Debug.Log(pair.Key + " - " + pair.Value);
+            }
+        }
     }
     public void RemoveItem(Item itemToRemove, int amountToRemove)
     {
@@ -44,7 +55,8 @@ public class Stockpile : Building
         base.RemoveWorker(workerToRemove);
         StockpileWorkErrand errand = errands[workerToRemove];
         if (errand.targetBuilding != null && errand.targetBuilding != this) {
-            errand.targetBuilding.stockpileRequestsFulfilled--;
+            int index = errand.targetBuilding.requests.IndexOf(errand.request);
+            errand.targetBuilding.requests[index].fulfilled = false;
         }
         
         errands.Remove(workerToRemove);
@@ -86,7 +98,7 @@ public class Stockpile : Building
                 // If the frog has items return them
                 if (worker.inv.itemSum != 0)
                 {
-                    errands[worker].errandType = StockpileWorkErrandType.Bring;
+                    errands[worker].errandType = StockpileWorkErrandType.Store;
                     errands[worker].targetBuilding = this;
 
                     worker.WalkToPoint(transform.position);
@@ -96,14 +108,38 @@ public class Stockpile : Building
                 {
                     foreach (Building building in buildingsInRange)
                     {
-                        if (building.stockpileRequests > building.stockpileRequestsFulfilled)
+                        if (errands[worker].errandType != StockpileWorkErrandType.None) break;
+
+                        for (int i = 0; i < building.requests.Count; i++)
                         {
-                            errands[worker].errandType = StockpileWorkErrandType.WalkToOrder;
-                            errands[worker].targetBuilding = building;
-                            building.stockpileRequestsFulfilled++;
-                            worker.WalkToPoint(building.transform.position);
-                            worker.idle = false;
-                            break;
+                            StockpileRequest request = building.requests[i];
+                            if (!request.fulfilled)
+                            {
+                                // Deliver
+                                if (request.type == StockpileRequestType.Deliver && inv.TryRemove(request.item, request.amount))
+                                {
+                                    errands[worker].errandType = StockpileWorkErrandType.GetFromStorage;
+                                    errands[worker].targetBuilding = this;
+                                    errands[worker].deliverTarget = building;
+                                    worker.WalkToPoint(transform.position);
+                                }
+                                // Take
+                                else if (request.type == StockpileRequestType.Take)
+                                {
+                                    errands[worker].errandType = StockpileWorkErrandType.WalkToOrder;
+                                    errands[worker].targetBuilding = building;
+
+                                    worker.WalkToPoint(building.transform.position);
+
+                                }
+                                else continue;
+
+                                building.requests[i].fulfilled = true;
+                                errands[worker].request = building.requests[i];
+
+                                worker.idle = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -118,7 +154,7 @@ public class Stockpile : Building
                 }
             }
             // Checks if the delivery is complete
-            else if (errand.errandType == StockpileWorkErrandType.Bring)
+            else if (errand.errandType == StockpileWorkErrandType.Store)
             {
                 if (!worker.walking)
                 {
@@ -126,22 +162,58 @@ public class Stockpile : Building
                     {
                         // Add items and reset worker
                         inv.Combine(worker.inv);
-                        errands[worker] = new StockpileWorkErrand();
-                        squashAndStretch.Play();
-                        worker.idle = true;
 
+                        ResetErrand(worker);
+
+                        squashAndStretch.Play();
+                        
                         if (inv.itemSum >= thresholds[2]) spriteRenderer.sprite = fullnessSprites[2];
                         else if (inv.itemSum >= thresholds[1]) spriteRenderer.sprite = fullnessSprites[1];
+                    }
+                }
+            }
+            // Checks if the worker has collected the request items
+            else if (errand.errandType == StockpileWorkErrandType.GetFromStorage)
+            {
+                if (!worker.walking)
+                {
+                    if (inv.TryRemove(errands[worker].request.item, errands[worker].request.amount))
+                    {
+                        inv.RemoveItemUnconstrained(errands[worker].request.item, errands[worker].request.amount);
+                        worker.inv.AddItemUnconstrained(errands[worker].request.item, errands[worker].request.amount);
+
+                        errands[worker].targetBuilding = errands[worker].deliverTarget;
+                        errands[worker].errandType = StockpileWorkErrandType.WalkToOrder;
+
+                        worker.WalkToPoint(errands[worker].targetBuilding.transform.position);
+
+                        squashAndStretch.Play();
+
+                        if (inv.itemSum < thresholds[1]) spriteRenderer.sprite = fullnessSprites[0];
+                        else if (inv.itemSum < thresholds[2]) spriteRenderer.sprite = fullnessSprites[1];
+                    }
+                    else
+                    {
+                        int index = errands[worker].targetBuilding.requests.IndexOf(errands[worker].request);
+                        errands[worker].targetBuilding.requests[index].fulfilled = false;
+                        ResetErrand(worker);
                     }
                 }
             }
         }
     }
 
+    public void ResetErrand(FrogWorker worker)
+    {
+        errands[worker] = new StockpileWorkErrand();
+        worker.idle = true;
+    }
     public class StockpileWorkErrand
     {
         public StockpileWorkErrandType errandType;
         public Building targetBuilding;
+        public StockpileRequest request;
+        public Building deliverTarget;
 
         public StockpileWorkErrand()
         {
@@ -153,6 +225,7 @@ public class Stockpile : Building
     {
         None,
         WalkToOrder,
-        Bring
+        Store,
+        GetFromStorage
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    Dictionary<Item, int> inventory;
+    public Dictionary<Item, int> inventory;
     public int capacity;
     public int itemSum;
 

@@ -41,11 +41,10 @@ public class FiberHarvester : Building
 
     public override void StockpileInteract(Stockpile stockpile, FrogWorker worker)
     {
-        // Replace the work errand in the stockpile with a inventory errand
         base.StockpileInteract(stockpile, worker);
 
         // Change the errand order in the stockpile
-        stockpile.errands[worker].errandType = Stockpile.StockpileWorkErrandType.Bring;
+        stockpile.errands[worker].errandType = Stockpile.StockpileWorkErrandType.Store;
         stockpile.errands[worker].targetBuilding = stockpile;
 
         // Calculate the amount that will be taken
@@ -55,8 +54,7 @@ public class FiberHarvester : Building
         
         // Fix request amounts
         fiber -= amountToGrab;
-        stockpileRequests--;
-        stockpileRequestsFulfilled--;
+        requests.RemoveAt(0);
 
         // Give items to the worker
         worker.inv.AddItem(ItemManager.GetItem("Fiber"), amountToGrab);
@@ -67,7 +65,12 @@ public class FiberHarvester : Building
     {
         PlantSearch();
         FrogControl();
-        stockpileRequests = Mathf.FloorToInt((float)fiber/FrogOrderManager.instance.workerFrogCarryCapacity);
+        int stockpileRequests = Mathf.FloorToInt((float)fiber / FrogOrderManager.instance.workerFrogCarryCapacity);
+        if (requests.Count < stockpileRequests)
+        {
+            StockpileRequest request = new StockpileRequest();
+            requests.Add(request);
+        }
     }
     void PlantSearch()
     {
