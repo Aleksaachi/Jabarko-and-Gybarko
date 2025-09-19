@@ -42,8 +42,9 @@ public class FrogOrderManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !RaycastChecker.Check())
         {
+
             CheckForSelectables();
             Tongue();
         }
@@ -85,9 +86,6 @@ public class FrogOrderManager : MonoBehaviour
 
     void CheckForSelectables()
     {
-        
-        if (RaycastChecker.Check()) return;
-        
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePosition.z = 0;
 

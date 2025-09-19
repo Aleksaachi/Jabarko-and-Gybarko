@@ -9,11 +9,17 @@ public class Building : Selectable
     [Header("Stockpile requests (Debug only)")]
     [SerializeField]
     public List<StockpileRequest> requests = new List<StockpileRequest>();
+    public Material defaultMaterial;
+    public Material outlineMaterial;
 
     public virtual void RemoveWorker(FrogWorker workerToRemove)
     {
         workers.Remove(workerToRemove);
         workerToRemove.workingIn = null;
+
+        SpriteRenderer renderer = workerToRemove.gameObject.GetComponent<SpriteRenderer>();
+        renderer.material = defaultMaterial;
+
     }
 
     public virtual void AddWorker(FrogWorker workerToAdd)
@@ -21,6 +27,9 @@ public class Building : Selectable
         workers.Add(workerToAdd);
         workerToAdd.workingIn = this;
         workerToAdd.idlePoint = transform.position;
+
+        SpriteRenderer renderer = workerToAdd.gameObject.GetComponent<SpriteRenderer>();
+        renderer.material = outlineMaterial;
     }
 
     public virtual void StockpileInteract(Stockpile stockpile, FrogWorker worker)
@@ -52,5 +61,23 @@ public class Building : Selectable
     {
         Take,
         Deliver
+    }
+
+    void OnMouseEnter()
+    {
+        foreach (FrogWorker worker in workers)
+        {
+            SpriteRenderer renderer = worker.gameObject.GetComponent<SpriteRenderer>();
+            renderer.material = outlineMaterial;
+        }
+    }
+
+    void OnMouseExit()
+    {
+         foreach (FrogWorker worker in workers)
+        {
+            SpriteRenderer renderer = worker.gameObject.GetComponent<SpriteRenderer>();
+            renderer.material = defaultMaterial;
+        }
     }
 }

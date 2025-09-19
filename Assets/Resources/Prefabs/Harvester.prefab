@@ -100,8 +100,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   workers: []
-  stockpileRequests: 0
-  stockpileRequestsFulfilled: 0
+  requests: []
+  defaultMaterial: {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  outlineMaterial: {fileID: 2100000, guid: fd1837983d4e8444c95461eef389ec39, type: 2}
   plantSearchRange: 10
   harvestTime: 5
   fiber: 0

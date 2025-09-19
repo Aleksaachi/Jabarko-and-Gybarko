@@ -6,6 +6,7 @@ using UnityEngine;
 public class BuildingOrder : Building
 {
     public BuildOrderTemplate buildOrderTemplate;
+    public SpriteRenderer iconRenderer;
     Inventory inv;
     SquashAndStretch squashAndStretch;
     void Awake()
@@ -31,6 +32,8 @@ public class BuildingOrder : Building
                 amount -= requestAmount;
             }
         }
+
+        iconRenderer.sprite = buildOrderTemplate.icon;
     }
 
     public override void StockpileInteract(Stockpile stockpile, FrogWorker worker)
