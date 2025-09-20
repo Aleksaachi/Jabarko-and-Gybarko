@@ -16,4 +16,4 @@ MonoBehaviour:
   itemCost:
   - {fileID: 11400000, guid: 03879b6e115d486499563fa6d2561495, type: 2}
   itemAmounts: 0f000000
-  icon: {fileID: 21300000, guid: 9e843f9eb1b04d340b1be63bbab00968, type: 3}
+  icon: {fileID: 21300000, guid: e3edc2fed817b234cb087609db38848e, type: 3}
